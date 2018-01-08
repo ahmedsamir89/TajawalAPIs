@@ -4,6 +4,8 @@ namespace App\Service;
 
 
 use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormErrorIterator;
 
 class FormErrorHandler
 {
@@ -17,9 +19,14 @@ class FormErrorHandler
         $resultArray = [];
         $errors = $form->getErrors(true, false);
         foreach ($errors as $error) {
-            $element = $error->current()->getOrigin()->getName();
-            $message = $error->current()->getMessage();
-            $resultArray[$element][] = $message;
+
+            if($error instanceof FormErrorIterator) {
+                $element = $error->current()->getOrigin()->getName();
+                $message = $error->current()->getMessage();
+                $resultArray[$element][] = $message;
+            } elseif ($error instanceof FormError) {
+                $resultArray[] = $error->getMessage();
+            }
         }
         return $resultArray;
     }
